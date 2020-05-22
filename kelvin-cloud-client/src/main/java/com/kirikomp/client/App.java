@@ -15,7 +15,6 @@ import java.util.Properties;
 
 import static javafx.fxml.FXMLLoader.load;
 
-
 public class App
         extends Application {
 
@@ -32,7 +31,6 @@ public class App
     public static NetConnection getNetConnection() {
         return conn;
     }
-
 
     @Override
     public void start(Stage primaryStage)
@@ -55,7 +53,6 @@ public class App
 
     }
 
-
     @Override
     public void stop()
             throws Exception {
@@ -63,7 +60,6 @@ public class App
 
         conn.close();
     }
-
 
     public static void main(String... args) {
         ConfigSingleton props = ConfigSingleton.getInstance();

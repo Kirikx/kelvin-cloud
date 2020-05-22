@@ -153,6 +153,9 @@ public class Controller
         btnConn.setVisible(false);
         btnConn.setDisable(true);
 
+//        App.setStageTitle("");
+
+
         updateLocalFileList();
         getFileListFromCloud();
     }
