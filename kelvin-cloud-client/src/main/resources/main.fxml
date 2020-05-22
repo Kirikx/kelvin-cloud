@@ -1,0 +1,55 @@
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<HBox fx:id="rootElem" fx:controller="com.kirikomp.client.Controller" xmlns:fx="http://javafx.com/fxml">
+
+    <VBox fx:id="vboxLoginPanel" HBox.hgrow="ALWAYS" alignment="center">
+        <TextField fx:id="login" maxWidth="200" promptText="Login" text="default">
+            <VBox.margin>
+                <Insets bottom="10"/>
+            </VBox.margin>
+        </TextField>
+
+        <PasswordField fx:id="password" maxWidth="200" promptText="Password" text="default">
+            <VBox.margin>
+                <Insets bottom="10"/>
+            </VBox.margin>
+        </PasswordField>
+
+        <Button onAction="#auth" prefWidth="200" text="Authorization">
+            <opaqueInsets>
+                <Insets/>
+            </opaqueInsets>
+        </Button>
+    </VBox>
+
+    <VBox fx:id="vboxLocalFiles" HBox.hgrow="ALWAYS">
+        <VBox>
+            <Button minWidth="200" maxWidth="200" prefWidth="200" fx:id="btnSendFiles" text="Загрузить файлы на сервер"
+                    onAction="#sendFiles"/>
+            <Button minWidth="200" maxWidth="200" prefWidth="200" fx:id="btnDeleteLocalFiles" text="Удалить файлы"
+                    onAction="#deleteLocalFiles"/>
+        </VBox>
+        <ListView fx:id="lstLocalFiles" VBox.vgrow="ALWAYS"/>
+        <VBox>
+            <Button minWidth="200" maxWidth="200" prefWidth="200" fx:id="btnConn" text="Подключиться"
+                    onAction="#connectToCloud"/>
+            <Button minWidth="200" maxWidth="200" prefWidth="200" fx:id="btnDisconn" text="Отключиться"
+                    onAction="#disconnectFromCloud"/>
+            <Button minWidth="200" maxWidth="200" prefWidth="200" fx:id="btnExit" text="Выход"
+                    onAction="#exitFromApp"/>
+        </VBox>
+    </VBox>
+
+    <VBox fx:id="vboxServerFiles" HBox.hgrow="ALWAYS">
+        <HBox>
+            <Button minWidth="200" maxWidth="200" prefWidth="200" fx:id="btnDeleteFilesInCloud" text="Удалить файлы"
+                    onAction="#deleteFilesInCloud"/>
+        </HBox>
+        <Button minWidth="200" maxWidth="200" prefWidth="200" fx:id="btnDownloadFiles" text="Скачать файлы с сервера"
+                onAction="#downloadFiles"/>
+        <ListView fx:id="lstFilesInCloud" VBox.vgrow="ALWAYS"/>
+    </VBox>
+
+</HBox>

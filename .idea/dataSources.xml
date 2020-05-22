@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
+    <data-source source="LOCAL" name="kelvin.sqlite" uuid="44c52f25-f535-4570-9415-0a07fa967bd3">
+      <driver-ref>sqlite.xerial</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
+      <jdbc-url>jdbc:sqlite:$PROJECT_DIR$/kelvindb.db</jdbc-url>
+    </data-source>
+    <data-source source="LOCAL" name="tbd_tst_12_ind_2@10.128.158.102" uuid="70296b0a-0308-46ce-bb63-b636aa1baa33">
+      <driver-ref>postgresql</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.postgresql.Driver</jdbc-driver>
+      <jdbc-url>jdbc:postgresql://10.128.158.102:1234/tbd_tst_12_ind_2</jdbc-url>
+    </data-source>
+    <data-source source="LOCAL" name="tbd_tst_12@10.254.112.43" uuid="3edf0e72-5cf6-46d1-a3b9-2cb9391b415f">
+      <driver-ref>postgresql</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.postgresql.Driver</jdbc-driver>
+      <jdbc-url>jdbc:postgresql://10.254.112.43:1234/tbd_tst_12</jdbc-url>
+    </data-source>
+  </component>
+</project>

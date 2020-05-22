@@ -1,0 +1,4 @@
+# Project exclude paths
+/kelvin-cloud-client/target/
+/kelvin-cloud-common/target/
+/kelvin-cloud-server/target/
