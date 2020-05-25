@@ -2,9 +2,12 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
 
-<HBox fx:id="rootElem" fx:controller="com.kirikomp.client.Controller" xmlns:fx="http://javafx.com/fxml">
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<VBox fx:id="rootElem" fx:controller="com.kirikomp.client.Controller" xmlns:fx="http://javafx.com/fxml">
 
-    <VBox fx:id="vboxLoginPanel" HBox.hgrow="ALWAYS" alignment="center">
+    <VBox fx:id="vboxLoginPanel" VBox.vgrow="ALWAYS" alignment="center">
         <TextField fx:id="login" maxWidth="200" promptText="Login" text="default">
             <VBox.margin>
                 <Insets bottom="10"/>
@@ -24,32 +27,58 @@
         </Button>
     </VBox>
 
-    <VBox fx:id="vboxLocalFiles" HBox.hgrow="ALWAYS">
-        <VBox>
-            <Button minWidth="200" maxWidth="200" prefWidth="200" fx:id="btnSendFiles" text="Загрузить файлы на сервер"
-                    onAction="#sendFiles"/>
+    <HBox fx:id="HboxConnect" HBox.hgrow="ALWAYS">
+        <Button minWidth="200" maxWidth="200" prefWidth="200" fx:id="btnConn" text="Подключиться"
+                onAction="#connectToCloud"/>
+        <Button minWidth="200" maxWidth="200" prefWidth="200" fx:id="btnDisconn" text="Отключиться"
+                onAction="#disconnectFromCloud"/>
+        <Button minWidth="200" maxWidth="200" prefWidth="200" fx:id="btnExit" text="Выход"
+                onAction="#exitFromApp"/>
+    </HBox>
+
+    <HBox fx:id="HboxFiles" HBox.hgrow="ALWAYS">
+        <VBox fx:id="vboxLocalFiles" HBox.hgrow="ALWAYS">
             <Button minWidth="200" maxWidth="200" prefWidth="200" fx:id="btnDeleteLocalFiles" text="Удалить файлы"
                     onAction="#deleteLocalFiles"/>
-        </VBox>
-        <ListView fx:id="lstLocalFiles" VBox.vgrow="ALWAYS"/>
-        <VBox>
-            <Button minWidth="200" maxWidth="200" prefWidth="200" fx:id="btnConn" text="Подключиться"
-                    onAction="#connectToCloud"/>
-            <Button minWidth="200" maxWidth="200" prefWidth="200" fx:id="btnDisconn" text="Отключиться"
-                    onAction="#disconnectFromCloud"/>
-            <Button minWidth="200" maxWidth="200" prefWidth="200" fx:id="btnExit" text="Выход"
-                    onAction="#exitFromApp"/>
-        </VBox>
-    </VBox>
 
-    <VBox fx:id="vboxServerFiles" HBox.hgrow="ALWAYS">
-        <HBox>
+            <ListView fx:id="lstLocalFiles" VBox.vgrow="ALWAYS"/>
+        </VBox>
+
+        <VBox>
+            <Button layoutX="138.0" layoutY="226.0" fx:id="btnSendFiles"
+                    onAction="#sendFiles">
+                <font>
+                    <Font size="30.0"/>
+                </font>
+                <graphic>
+                    <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
+                        <image>
+                            <Image url="/left2.png"/>
+                        </image>
+                    </ImageView>
+                </graphic>
+            </Button>
+
+            <Button layoutX="138.0" layoutY="226.0" fx:id="btnDownloadFiles"
+                    onAction="#downloadFiles">
+                <font>
+                    <Font size="30.0"/>
+                </font>
+                <graphic>
+                    <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
+                        <image>
+                            <Image url="/right2.png"/>
+                        </image>
+                    </ImageView>
+                </graphic>
+            </Button>
+        </VBox>
+
+        <VBox fx:id="vboxServerFiles" HBox.hgrow="ALWAYS">
             <Button minWidth="200" maxWidth="200" prefWidth="200" fx:id="btnDeleteFilesInCloud" text="Удалить файлы"
                     onAction="#deleteFilesInCloud"/>
-        </HBox>
-        <Button minWidth="200" maxWidth="200" prefWidth="200" fx:id="btnDownloadFiles" text="Скачать файлы с сервера"
-                onAction="#downloadFiles"/>
-        <ListView fx:id="lstFilesInCloud" VBox.vgrow="ALWAYS"/>
-    </VBox>
 
-</HBox>
+            <ListView fx:id="lstFilesInCloud" VBox.vgrow="ALWAYS"/>
+        </VBox>
+    </HBox>
+</VBox>

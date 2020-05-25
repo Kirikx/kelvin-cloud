@@ -46,6 +46,8 @@ public class App
             Scene scene = new Scene(root, WIDTH, HEIGHT);
             mainStage.setScene(scene);
             mainStage.setTitle(TITLE + " - Авторизация");
+//            Controller controller = loader.getController();
+//            mainStage.setOnHidden(e -> controller.shutdown());
             mainStage.show();
         } catch (IOException e) {
             e.printStackTrace();
@@ -56,9 +58,9 @@ public class App
     @Override
     public void stop()
             throws Exception {
-        super.stop();
-
         conn.close();
+
+        super.stop();
     }
 
     public static void main(String... args) {

@@ -11,7 +11,7 @@ import static javafx.scene.control.ButtonType.OK;
 
 public final class UIutils
 {
-
+//Создание АЛЕРТА с текстом ошибки в новом потоке
   public static void showError(String text)
   {
 	updateUI(() ->
