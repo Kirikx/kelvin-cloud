@@ -1,6 +1,5 @@
 package com.kirikomp.client;
 
-import com.kirikomp.common.DataPackage;
 import com.kirikomp.common.FileSendOptimizer;
 
 import java.io.File;
@@ -8,7 +7,6 @@ import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.PriorityBlockingQueue;
-import java.util.function.Consumer;
 
 import static java.lang.Thread.currentThread;
 
@@ -23,7 +21,7 @@ public class FileSender
 
 
     public FileSender() {
-        conn = App.getNetConnection();
+        conn = ClientApp.getNetConnection();
         queue = new PriorityBlockingQueue<>(MAX_COUNT, Comparator.comparingLong(File::length));
     }
 

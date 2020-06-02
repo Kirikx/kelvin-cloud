@@ -123,7 +123,7 @@ public class Controller
     //Первичная инициализация с панелью авторизации
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        conn = App.getNetConnection();
+        conn = ClientApp.getNetConnection();
 
         HboxConnect.setVisible(false);
         HboxConnect.setManaged(false);
@@ -157,6 +157,7 @@ public class Controller
         //Инициализируем обработчик отправки файлов
         fileSender = new FileSender();
         exec = newFixedThreadPool(THREAD_MAX_COUNT);
+        //Запускаем потоки на отправку и получение
         exec.execute(responseHandler);
         exec.execute(fileSender);
         

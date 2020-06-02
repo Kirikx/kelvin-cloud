@@ -8,14 +8,16 @@ import javafx.stage.Stage;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Properties;
 
+import static java.lang.System.exit;
 import static javafx.fxml.FXMLLoader.load;
 
-public class App
+public class ClientApp
         extends Application {
 
     public Stage mainStage;
@@ -26,8 +28,9 @@ public class App
     private static final int HEIGHT = 800;
     private static final String TITLE = "Kelvin Cloud Client";
     private static final String MAIN_FXML_PATH = "/main.fxml";
+    private static final String NAME_CONF = "config.properties";
 
-    // статически инициализируем канал  связи с сервером
+    // статический метод отдает текущий конекшн приложения
     public static NetConnection getNetConnection() {
         return conn;
     }
@@ -46,8 +49,7 @@ public class App
             Scene scene = new Scene(root, WIDTH, HEIGHT);
             mainStage.setScene(scene);
             mainStage.setTitle(TITLE + " - Авторизация");
-//            Controller controller = loader.getController();
-//            mainStage.setOnHidden(e -> controller.shutdown());
+            mainStage.setOnHidden(e -> exit(0)); //Действие при закрытии приложения
             mainStage.show();
         } catch (IOException e) {
             e.printStackTrace();
@@ -66,10 +68,20 @@ public class App
     public static void main(String... args) {
         ConfigSingleton props = ConfigSingleton.getInstance();
         Properties property = new Properties();
+
         Path path = Paths.get("kelvin-cloud-client", "src", "main", "resources", "config.properties");
 
-        try (FileInputStream fis = new FileInputStream(path.toString())) {
-            property.load(fis);
+        // this is the path within the jar file
+        InputStream input = ClientApp.class.getClassLoader().getResourceAsStream(NAME_CONF);
+        if (input == null) {
+            System.out.println("Раз");
+            // this is how we load file within editor (IDEA)
+            input =  ClientApp.class.getResourceAsStream("/resource" + NAME_CONF);
+        }
+
+        try /*(FileInputStream fis = new FileInputStream(path.toString()))*/ {
+//            property.load(fis);
+            property.load(input);
             props.HOST = property.getProperty("host", "localhost");
             props.PORT = Integer.parseInt(property.getProperty("port", "1234"));
             props.STORAGE_DIR = property.getProperty("storage.dir", "client/server_storage");
@@ -86,6 +98,7 @@ public class App
             throw new RuntimeException("Неверный формат настроек сервера 'config.properties'!!! " + e.getMessage());
         }
         conn = new NetConnection();
+
         launch(args);
     }
 

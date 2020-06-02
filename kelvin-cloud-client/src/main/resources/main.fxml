@@ -5,8 +5,9 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
-<VBox fx:id="rootElem" fx:controller="com.kirikomp.client.Controller" xmlns:fx="http://javafx.com/fxml">
-
+<VBox fx:id="rootElem" fx:controller="com.kirikomp.client.Controller" VBox.vgrow="ALWAYS"
+      xmlns:fx="http://javafx.com/fxml">
+    <!--Панель авторизации-->
     <VBox fx:id="vboxLoginPanel" VBox.vgrow="ALWAYS" alignment="center">
         <TextField fx:id="login" maxWidth="200" promptText="Login" text="default">
             <VBox.margin>
@@ -26,7 +27,7 @@
             </opaqueInsets>
         </Button>
     </VBox>
-
+    <!--Панель подключения/отключения соединения с сервером-->
     <HBox fx:id="HboxConnect" HBox.hgrow="ALWAYS">
         <Button minWidth="200" maxWidth="200" prefWidth="200" fx:id="btnConn" text="Подключиться"
                 onAction="#connectToCloud"/>
@@ -35,15 +36,16 @@
         <Button minWidth="200" maxWidth="200" prefWidth="200" fx:id="btnExit" text="Выход"
                 onAction="#exitFromApp"/>
     </HBox>
-
-    <HBox fx:id="HboxFiles" HBox.hgrow="ALWAYS">
+    <!--Панель работы с файлами-->
+    <HBox fx:id="HboxFiles" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS">
+        <!--Список локальных файлов и кнопка удалить-->
         <VBox fx:id="vboxLocalFiles" HBox.hgrow="ALWAYS">
             <Button minWidth="200" maxWidth="200" prefWidth="200" fx:id="btnDeleteLocalFiles" text="Удалить файлы"
                     onAction="#deleteLocalFiles"/>
 
             <ListView fx:id="lstLocalFiles" VBox.vgrow="ALWAYS"/>
         </VBox>
-
+        <!--Кнопки работы с файлами-->
         <VBox>
             <Button layoutX="138.0" layoutY="226.0" fx:id="btnSendFiles"
                     onAction="#sendFiles">
@@ -73,7 +75,7 @@
                 </graphic>
             </Button>
         </VBox>
-
+        <!--Список файлов на сервере и кнопка удалить-->
         <VBox fx:id="vboxServerFiles" HBox.hgrow="ALWAYS">
             <Button minWidth="200" maxWidth="200" prefWidth="200" fx:id="btnDeleteFilesInCloud" text="Удалить файлы"
                     onAction="#deleteFilesInCloud"/>

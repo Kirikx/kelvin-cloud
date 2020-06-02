@@ -23,7 +23,7 @@ public class ServerResponseHandler
 
 
     public ServerResponseHandler() {
-        conn = App.getNetConnection();
+        conn = ClientApp.getNetConnection();
         saver = new FileChunkSaver(Paths.get(ConfigSingleton.getInstance().STORAGE_DIR));
     }
 
