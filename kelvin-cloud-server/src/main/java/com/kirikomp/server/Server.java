@@ -33,8 +33,11 @@ public class Server {
         Properties property = new Properties();
         Server server = new Server();
 
-        // this is the path within the jar file
-        InputStream input = Server.class.getClassLoader().getResourceAsStream(NAME_CONF);
+        // this is the path without the jar file
+        Path path = Paths.get( "config.properties");
+
+        InputStream input = new FileInputStream(path.toString());
+//        InputStream input = Server.class.getClassLoader().getResourceAsStream(NAME_CONF);
         if (input == null) {
             System.out.println("Раз");
             // this is how we load file within editor (IDEA)

@@ -84,7 +84,7 @@ public class ClientApp
             property.load(input);
             props.HOST = property.getProperty("host", "localhost");
             props.PORT = Integer.parseInt(property.getProperty("port", "1234"));
-            props.STORAGE_DIR = property.getProperty("storage.dir", "client/server_storage");
+            props.STORAGE_DIR = property.getProperty("storage.dir", "client_storage");
             props.MAX_OBJ_SIZE = Integer.parseInt(property.getProperty("max.obj.size", "52428800"));
 
             System.out.println("HOST: " + ConfigSingleton.getInstance().HOST
