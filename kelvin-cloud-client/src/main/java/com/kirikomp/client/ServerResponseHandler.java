@@ -21,18 +21,26 @@ public class ServerResponseHandler
     private Runnable callbackFileData;
     private FileChunkSaver saver;
 
-
+    /**
+     * Конструктор хендлера сервера
+     */
     public ServerResponseHandler() {
-        conn = ClientApp.getNetConnection();
+        conn = Client.getNetConnection();
         saver = new FileChunkSaver(Paths.get(ConfigSingleton.getInstance().STORAGE_DIR));
     }
 
-    //Callback для обновления списка файлов на сервере
+    /**
+     * Callback для обновления списка файлов на сервере
+     * @param action Consumer<List<String>>
+     */
     public void setFileListToServerActionUI(Consumer<List<String>> action) {
         callbackFileList = action;
     }
 
-    //Callback для обновления списка файлов в локальном репозитории
+    /**
+     * Callback для обновления списка файлов в локальном репозитории
+     * @param action Runnable
+     */
     public void setFileListToLocalActionUI(Runnable action) {
         callbackFileData = action;
     }
@@ -50,7 +58,9 @@ public class ServerResponseHandler
         }
     }
 
-    //Разбор ответа сервера
+    /**
+     * Метод для разбора ответа сервера
+     */
     private void parsingResponse(DataPackage response)
             throws IOException {
         if (response instanceof FileListCommand) {

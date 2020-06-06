@@ -19,9 +19,11 @@ public class FileSender
 
     private static final int MAX_COUNT = 100;
 
-
+    /**
+     * Конструктор
+     */
     public FileSender() {
-        conn = ClientApp.getNetConnection();
+        conn = Client.getNetConnection();
         queue = new PriorityBlockingQueue<>(MAX_COUNT, Comparator.comparingLong(File::length));
     }
 
@@ -45,7 +47,10 @@ public class FileSender
         }
     }
 
-    //Добавление файлов в очередь
+    /**
+     * Метод добавления файлов в очередь
+     * @param files File list
+     */
     public void addFilesToQueue(List<File> files) {
         files.forEach(queue::put);
     }

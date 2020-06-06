@@ -18,14 +18,24 @@ public class MainHandler
 
     private Path userDir;
     private FileChunkSaver saver;
+    Runnable action;
 
+    @Override
+    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+        action = () -> {
+            try {
+                MainHandler.this.sendFileList(ctx);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        };
+    }
 
     public void setUserDir(Path dir) {
         userDir = dir;
         saver = new FileChunkSaver(dir);
     }
 
-    //Роутер
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg)
             throws Exception {
@@ -53,13 +63,6 @@ public class MainHandler
             }
 
             if (msg instanceof FileChunkPackage) {
-                Runnable action = () -> { //Тут не понял как завернуть sendFileList c контекстом в конструктор
-                    try {
-                        MainHandler.this.sendFileList(ctx);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                };
                 saver.writeFileChunk((FileChunkPackage) msg, action);
             }
         } finally {
@@ -67,13 +70,24 @@ public class MainHandler
         }
     }
 
-    //Передаем список файлов
+    /**
+     * Метод передачи списка файлов клиента на сервере
+     *
+     * @param ctx контекст
+     * @throws IOException
+     */
     private void sendFileList(ChannelHandlerContext ctx)
             throws IOException {
         sendFileList(ctx, new FileListCommand());
     }
 
-    //Перегрузка
+    /**
+     * Перегруженый метод передачи списка файлов клиента на сервере
+     *
+     * @param ctx контекст
+     * @param com Команда FileListCommand
+     * @throws IOException
+     */
     private void sendFileList(ChannelHandlerContext ctx, FileListCommand com)
             throws IOException {
         List<String> fnames = Files.list(userDir)
@@ -84,14 +98,25 @@ public class MainHandler
         ctx.writeAndFlush(com);
     }
 
-    //Сохраняем файл
+    /**
+     * Метод сохранения файлов
+     *
+     * @param pack FileDataPackage
+     * @throws IOException
+     */
     private void saveFile(FileDataPackage pack)
             throws IOException {
         Path path = userDir.resolve(pack.getFilename());
         Files.write(path, pack.getData());
     }
 
-    //Отправить файл
+    /**
+     * Метод отправки файлов
+     *
+     * @param ctx контекст
+     * @param com команда GetFilesCommand
+     * @throws Exception
+     */
     private void sendFiles(ChannelHandlerContext ctx, GetFilesCommand com)
             throws Exception {
         for (String fn : com.getFileNames()) {
@@ -100,7 +125,12 @@ public class MainHandler
         }
     }
 
-    //Удаляем файлы
+    /**
+     * Метод удаления файлов
+     *
+     * @param com команда DeleteFilesCommand
+     * @throws IOException
+     */
     private void deleteFiles(DeleteFilesCommand com)
             throws IOException {
         for (String fn : com.getFileNames()) {

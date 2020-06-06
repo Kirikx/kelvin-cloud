@@ -6,18 +6,15 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Properties;
 
 import static java.lang.System.exit;
 import static javafx.fxml.FXMLLoader.load;
 
-public class ClientApp
+public class Client
         extends Application {
 
     public Stage mainStage;
@@ -30,11 +27,16 @@ public class ClientApp
     private static final String MAIN_FXML_PATH = "/main.fxml";
     private static final String NAME_CONF = "config.properties";
 
-    // статический метод отдает текущий конекшн приложения
+    // статический метод отдает текущее подключение
     public static NetConnection getNetConnection() {
         return conn;
     }
 
+    /**
+     * Старт приложения
+     * @param primaryStage
+     * @throws Exception
+     */
     @Override
     public void start(Stage primaryStage)
             throws Exception {
@@ -48,7 +50,7 @@ public class ClientApp
             Parent root = load(res);
             Scene scene = new Scene(root, WIDTH, HEIGHT);
             mainStage.setScene(scene);
-            mainStage.setTitle(TITLE + " - Авторизация");
+            mainStage.setTitle(TITLE);
             mainStage.setOnHidden(e -> exit(0)); //Действие при закрытии приложения
             mainStage.show();
         } catch (IOException e) {
@@ -57,30 +59,33 @@ public class ClientApp
 
     }
 
+    /**
+     * Остановка приложения
+     * @throws Exception
+     */
     @Override
     public void stop()
             throws Exception {
         conn.close();
-
         super.stop();
     }
 
+    /**
+     * Считываем данные из конфигурационного файла в singleton, и запуск приложения
+     * @param args не применяются
+     */
     public static void main(String... args) {
         ConfigSingleton props = ConfigSingleton.getInstance();
         Properties property = new Properties();
 
-        Path path = Paths.get("kelvin-cloud-client", "src", "main", "resources", "config.properties");
-
         // this is the path within the jar file
-        InputStream input = ClientApp.class.getClassLoader().getResourceAsStream(NAME_CONF);
+        InputStream input = Client.class.getClassLoader().getResourceAsStream(NAME_CONF);
         if (input == null) {
-            System.out.println("Раз");
             // this is how we load file within editor (IDEA)
-            input =  ClientApp.class.getResourceAsStream("/resource" + NAME_CONF);
+            input =  Client.class.getResourceAsStream("/resource" + NAME_CONF);
         }
 
-        try /*(FileInputStream fis = new FileInputStream(path.toString()))*/ {
-//            property.load(fis);
+        try {
             property.load(input);
             props.HOST = property.getProperty("host", "localhost");
             props.PORT = Integer.parseInt(property.getProperty("port", "1234"));
@@ -101,9 +106,4 @@ public class ClientApp
 
         launch(args);
     }
-
-    public void setStageTitle(String newTitle) {
-        mainStage.setTitle(TITLE + newTitle);
-    }
-
 }

@@ -14,11 +14,13 @@ import static java.sql.DriverManager.getConnection;
 public class AuthService {
 
     private static final Connection dbConn;
-    private static final String JDBC_DRIVER = "org.sqlite.JDBC";//todo добавить в конфигурационный файл
+    private static final String JDBC_DRIVER = "org.sqlite.JDBC";
     private static final String DB_URL = "jdbc:sqlite:kelvindb.db";
     private static final String sql = "SELECT * FROM users WHERE login = ? and password = ?";
 
-
+    /**
+     * Статический блок инициализации подключения к DB
+     */
     static {
         try {
             Class.forName(JDBC_DRIVER);
@@ -28,19 +30,29 @@ public class AuthService {
         }
     }
 
-
+    /**
+     * Метод авторизации пользователя
+     * @param login Login
+     * @param password Password
+     * @return Boolean status
+     * @throws SQLException
+     */
     public boolean autorize(String login, String password)
             throws SQLException{
         PreparedStatement ps = dbConn.prepareStatement(sql);
         ps.setString(1, login);
-//        ps.setString(2, passToHash(password));
-        ps.setString(2, password);
+       ps.setString(2, passToHash(password));
 
         ResultSet rs = ps.executeQuery();
 
         return rs.next();
     }
-//todo подумать нужен ли здесь
+
+    /**
+     * Метод преобразования пароля в Hash
+     * @param password Password String
+     * @return Password String hash
+     */
     private String passToHash(String password) {
         StringBuffer code = new StringBuffer();
         try {

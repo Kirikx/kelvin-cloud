@@ -12,7 +12,12 @@ public class FileSendOptimizer {
 
     private static final int CHUNK_SIZE = 4 * 1024 * 1024;
 
-    //Отправляем файл
+    /**
+     * Метод на отправку файла
+     * @param path путь
+     * @param sendAction действие на отправку
+     * @throws Exception
+     */
     public static void sendFile(Path path, Consumer<DataPackage> sendAction)
             throws Exception {
         if (!exists(path)) return;
@@ -23,18 +28,27 @@ public class FileSendOptimizer {
             sendByChunks(path, sendAction);
     }
 
-    //Отправляем целиком
+    /**
+     * Метод отправки файла целиком
+     * @param path путь
+     * @param sendAction действие на отправку
+     * @throws Exception
+     */
     private static void sendFull(Path path, Consumer<DataPackage> sendAction)
             throws Exception {
         DataPackage pack = new FileDataPackage(path);
         sendAction.accept(pack);
     }
 
-    //Отправляем по кускам
+    /**
+     * Мотод на отправку файла по кускам
+     * @param path путь
+     * @param sendAction действие на отправку
+     * @throws Exception
+     */
     private static void sendByChunks(Path path, Consumer<DataPackage> sendAction)
             throws Exception {
         try (InputStream in = newInputStream(path)) {
-//            int availCount = in.available(); // вот тут не понял из код-ревю "можно заменить на file.length"?
             int availCount = (int) path.toFile().length();
 
             int tail = availCount % CHUNK_SIZE;
@@ -48,7 +62,6 @@ public class FileSendOptimizer {
                 in.read(chunk);
                 DataPackage pack = new FileChunkPackage(path, chunk, num++);
                 sendAction.accept(pack);
-//                availCount = in.available();
                 availCount-=CHUNK_SIZE;
             }
 

@@ -28,18 +28,18 @@ public class Server {
     private static int MAX_OBJ_SIZE;
     private static final String NAME_CONF = "config.properties";
 
-
+    /**
+     * Считываем данные из конфигурационного файла в статические переменные и запуск приложения
+     * @param args порт на котором нужно стартовать сервер (опционально, по умолчанию берет из конфиг файла)
+     */
     public static void main(String[] args) throws Exception {
         Properties property = new Properties();
         Server server = new Server();
 
         // this is the path without the jar file
         Path path = Paths.get( "config.properties");
-
         InputStream input = new FileInputStream(path.toString());
-//        InputStream input = Server.class.getClassLoader().getResourceAsStream(NAME_CONF);
         if (input == null) {
-            System.out.println("Раз");
             // this is how we load file within editor (IDEA)
             input =  Server.class.getResourceAsStream("/resource" + NAME_CONF);
         }

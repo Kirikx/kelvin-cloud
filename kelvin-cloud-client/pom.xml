@@ -30,7 +30,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>com.kirikomp.client.ClientApp</mainClass>
+                            <mainClass>com.kirikomp.client.Client</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
@@ -44,7 +44,7 @@
                     </descriptorRefs>
                     <archive>
                         <manifest>
-                            <mainClass>com.kirikomp.client.ClientApp</mainClass>
+                            <mainClass>com.kirikomp.client.Client</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
