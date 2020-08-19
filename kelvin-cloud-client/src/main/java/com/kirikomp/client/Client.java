@@ -6,17 +6,15 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Properties;
 
+import static java.lang.System.exit;
 import static javafx.fxml.FXMLLoader.load;
 
-
-public class App
+public class Client
         extends Application {
 
     public Stage mainStage;
@@ -27,13 +25,18 @@ public class App
     private static final int HEIGHT = 800;
     private static final String TITLE = "Kelvin Cloud Client";
     private static final String MAIN_FXML_PATH = "/main.fxml";
+    private static final String NAME_CONF = "config.properties";
 
-    // статически инициализируем канал  связи с сервером
+    // статический метод отдает текущее подключение
     public static NetConnection getNetConnection() {
         return conn;
     }
 
-
+    /**
+     * Старт приложения
+     * @param primaryStage
+     * @throws Exception
+     */
     @Override
     public void start(Stage primaryStage)
             throws Exception {
@@ -47,7 +50,8 @@ public class App
             Parent root = load(res);
             Scene scene = new Scene(root, WIDTH, HEIGHT);
             mainStage.setScene(scene);
-            mainStage.setTitle(TITLE + " - Авторизация");
+            mainStage.setTitle(TITLE);
+            mainStage.setOnHidden(e -> exit(0)); //Действие при закрытии приложения
             mainStage.show();
         } catch (IOException e) {
             e.printStackTrace();
@@ -55,26 +59,37 @@ public class App
 
     }
 
-
+    /**
+     * Остановка приложения
+     * @throws Exception
+     */
     @Override
     public void stop()
             throws Exception {
-        super.stop();
-
         conn.close();
+        super.stop();
     }
 
-
+    /**
+     * Считываем данные из конфигурационного файла в singleton, и запуск приложения
+     * @param args не применяются
+     */
     public static void main(String... args) {
         ConfigSingleton props = ConfigSingleton.getInstance();
         Properties property = new Properties();
-        Path path = Paths.get("kelvin-cloud-client", "src", "main", "resources", "config.properties");
 
-        try (FileInputStream fis = new FileInputStream(path.toString())) {
-            property.load(fis);
+        // this is the path within the jar file
+        InputStream input = Client.class.getClassLoader().getResourceAsStream(NAME_CONF);
+        if (input == null) {
+            // this is how we load file within editor (IDEA)
+            input =  Client.class.getResourceAsStream("/resource" + NAME_CONF);
+        }
+
+        try {
+            property.load(input);
             props.HOST = property.getProperty("host", "localhost");
             props.PORT = Integer.parseInt(property.getProperty("port", "1234"));
-            props.STORAGE_DIR = property.getProperty("storage.dir", "client/server_storage");
+            props.STORAGE_DIR = property.getProperty("storage.dir", "client_storage");
             props.MAX_OBJ_SIZE = Integer.parseInt(property.getProperty("max.obj.size", "52428800"));
 
             System.out.println("HOST: " + ConfigSingleton.getInstance().HOST
@@ -88,11 +103,7 @@ public class App
             throw new RuntimeException("Неверный формат настроек сервера 'config.properties'!!! " + e.getMessage());
         }
         conn = new NetConnection();
+
         launch(args);
     }
-
-    public void setStageTitle(String newTitle) {
-        mainStage.setTitle(TITLE + newTitle);
-    }
-
 }

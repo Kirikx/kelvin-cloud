@@ -7,6 +7,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.ReferenceCountUtil;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -41,7 +42,7 @@ public class AuthHandler
                 AuthCommand com = (AuthCommand) msg;
 
                 autorized = auth.autorize(com.login, com.password);
-
+                new File(STORAGE_DIR).mkdirs();
                 if (autorized) {
                     Path dir = Paths.get(STORAGE_DIR, com.login);
                     if (!exists(dir))

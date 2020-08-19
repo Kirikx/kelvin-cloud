@@ -19,12 +19,13 @@ public class FileSender
 
     private static final int MAX_COUNT = 100;
 
-
+    /**
+     * Конструктор
+     */
     public FileSender() {
-        conn = App.getNetConnection();
+        conn = Client.getNetConnection();
         queue = new PriorityBlockingQueue<>(MAX_COUNT, Comparator.comparingLong(File::length));
     }
-
 
     @Override
     public void run() {
@@ -33,8 +34,7 @@ public class FileSender
                 Path path = queue.take().toPath();
 
                 FileSendOptimizer.sendFile(path,
-                        dataPackage ->
-                        {
+                        dataPackage -> {
                             try {
                                 conn.sendToServer(dataPackage);
                             } catch (NetConnection.SendDataException e) {
@@ -47,8 +47,11 @@ public class FileSender
         }
     }
 
-
-    public void addFiles(List<File> files) {
+    /**
+     * Метод добавления файлов в очередь
+     * @param files File list
+     */
+    public void addFilesToQueue(List<File> files) {
         files.forEach(queue::put);
     }
 

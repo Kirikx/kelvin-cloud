@@ -23,7 +23,8 @@ import java.util.ResourceBundle;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import static com.kirikomp.client.UIutils.*;
+import static com.kirikomp.client.UIutils.showError;
+import static com.kirikomp.client.UIutils.updateUI;
 import static com.kirikomp.common.AuthResult.Result.OK;
 import static java.lang.System.exit;
 import static java.lang.Thread.currentThread;
@@ -44,7 +45,7 @@ public class Controller
     private static final int THREAD_MAX_COUNT = 2;
 
     @FXML
-    HBox rootElem;
+    VBox rootElem;
 
     @FXML
     VBox vboxLoginPanel;
@@ -54,6 +55,18 @@ public class Controller
     PasswordField password;
 
     @FXML
+    HBox HboxConnect;
+    @FXML
+    Button btnConn;
+    @FXML
+    Button btnDisconn;
+    @FXML
+    Button btnExit;
+
+    @FXML
+    HBox HboxFiles;
+
+    @FXML
     VBox vboxLocalFiles;
     @FXML
     Button btnSendFiles;
@@ -61,12 +74,7 @@ public class Controller
     Button btnDeleteLocalFiles;
     @FXML
     ListView<String> lstLocalFiles;
-    @FXML
-    Button btnConn;
-    @FXML
-    Button btnDisconn;
-    @FXML
-    Button btnExit;
+
 
     @FXML
     VBox vboxServerFiles;
@@ -77,7 +85,10 @@ public class Controller
     @FXML
     ListView<String> lstFilesInCloud;
 
-
+    /**
+     * Метод для аутентификации на сервере
+     * @param event обработчик нажатия конопки аутентификации
+     */
     public void auth(ActionEvent event) {
         try {
             conn.auth(login.getText(), password.getText());
@@ -86,7 +97,9 @@ public class Controller
         }
     }
 
-
+    /**
+     * Приватный вложенный класс аутентификации
+     */
     private class AuthHandler
             implements Runnable {
 
@@ -112,52 +125,69 @@ public class Controller
 
     }
 
-
+    /**
+     * Первичная инициализация формы с панелью авторизации
+     * @param location
+     * @param resources
+     */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        conn = App.getNetConnection();
+        conn = Client.getNetConnection();
 
-        vboxLocalFiles.setVisible(false);
-        vboxLocalFiles.setManaged(false);
+        HboxConnect.setVisible(false);
+        HboxConnect.setManaged(false);
 
-        vboxServerFiles.setVisible(false);
-        vboxServerFiles.setManaged(false);
+        HboxFiles.setVisible(false);
+        HboxFiles.setManaged(false);
 
         authHandler = new Controller.AuthHandler();
         exec = Executors.newSingleThreadExecutor();
-        exec.execute(authHandler);
+        exec.execute(authHandler); // Запускаем обработчик авторизации в отдельном потоке
     }
 
-
+    /**
+     * Инициализация панелей работы с файлами после успешной авторизации
+     */
     private void initMainPanel() {
-
+        //Скрываем панель авторизации
         vboxLoginPanel.setVisible(false);
         vboxLoginPanel.setManaged(false);
+        //Отображаем панели переподключения
+        // todo Панель пока не работает
+//        HboxConnect.setVisible(true);
+//        HboxConnect.setManaged(true);
+        //Отображаем панели работы с файлами
+        HboxFiles.setVisible(true);
+        HboxFiles.setManaged(true);
 
-        vboxLocalFiles.setVisible(true);
-        vboxLocalFiles.setManaged(true);
-
-        vboxServerFiles.setVisible(true);
-        vboxServerFiles.setManaged(true);
-
+        //Инициализируем обработчик ответов сервера
         responseHandler = new ServerResponseHandler();
-        responseHandler.setFileListActionUI(this::updateFileListFromCloud);
-        responseHandler.setFileDataActionUI(this::updateLocalFileList);
+        //Вешаем callback's на обновление списков файлов в результате действий с файлами
+        responseHandler.setFileListToServerActionUI(this::updateFileListFromCloud);
+        responseHandler.setFileListToLocalActionUI(this::updateLocalFileList);
+
+        //Инициализируем обработчик отправки файлов
         fileSender = new FileSender();
         exec = newFixedThreadPool(THREAD_MAX_COUNT);
+        //Запускаем потоки на отправку и получение
         exec.execute(responseHandler);
         exec.execute(fileSender);
-
+        
+        //Скрываем кнопку "Подключится"
         btnConn.managedProperty().bind(btnConn.visibleProperty());
         btnDisconn.managedProperty().bind(btnDisconn.visibleProperty());
         btnConn.setVisible(false);
         btnConn.setDisable(true);
 
+        //Обновляем списки файлов
         updateLocalFileList();
         getFileListFromCloud();
     }
 
-
+    /**
+     * Обработчик кнопки "Подключиться"
+     * @param event событие при нажатии кнопки
+     */
     public void connectToCloud(ActionEvent event) {
         try {
             conn.open();
@@ -169,7 +199,10 @@ public class Controller
         }
     }
 
-
+    /**
+     * Обработчик кнопки "Отключиться"
+     * @param event событие при нажатии кнопки
+     */
     public void disconnectFromCloud(ActionEvent event) {
         try {
             conn.close();
@@ -179,7 +212,18 @@ public class Controller
         }
     }
 
+    /**
+     * Обработчик кнопки "Выход"
+     * @param event событие при нажатии кнопки
+     */
+    public void exitFromApp(ActionEvent event) {
+        exit(0);
+    }
 
+    /**
+     * Изменение состояния (видимости) кнопок в зависимости от состояния подключения
+     * @param connected активное подключение
+     */
     private void setButtonsState(boolean connected) {
         btnConn.setVisible(!connected);
         btnConn.setDisable(connected);
@@ -191,16 +235,10 @@ public class Controller
         btnDeleteFilesInCloud.setDisable(!connected);
     }
 
-
-    public void getFileListFromCloud() {
-        try {
-            conn.sendFileListCommand();
-        } catch (NetConnection.SendDataException e) {
-            showError(e);
-        }
-    }
-
-
+    /**
+     * Обработчик кнопки "Отправить"
+     * @param event событие при нажатии кнопки
+     */
     public void sendFiles(ActionEvent event) {
         if (parentWin == null) parentWin = rootElem.getScene().getWindow();
 
@@ -210,10 +248,13 @@ public class Controller
         if (files == null || files.isEmpty())
             return;
 
-        fileSender.addFiles(files);
+        fileSender.addFilesToQueue(files);
     }
 
-
+    /**
+     * Обработчик нажатия кнопки "Удалить файлы" (в локальном репозитории)
+     * @param event событие при нажатии кнопки
+     */
     public void deleteLocalFiles(ActionEvent event) {
         try {
             MultipleSelectionModel<String> model = lstLocalFiles.getSelectionModel();
@@ -229,7 +270,10 @@ public class Controller
         }
     }
 
-
+    /**
+     * Обработчик нажатия кнопки "Скачать файлы" (из сервера в локальный репозиторий)
+     * @param event событие при нажатии кнопки
+     */
     public void downloadFiles(ActionEvent event) {
         try {
             MultipleSelectionModel<String> model = lstFilesInCloud.getSelectionModel();
@@ -240,7 +284,10 @@ public class Controller
         }
     }
 
-
+    /**
+     * Обработчик нажатия кнопки "Удалить файлы" (на сервере)
+     * @param event событие при нажатии кнопки
+     */
     public void deleteFilesInCloud(ActionEvent event) {
         try {
             MultipleSelectionModel<String> model = lstFilesInCloud.getSelectionModel();
@@ -251,7 +298,21 @@ public class Controller
         }
     }
 
+    /**
+     * Метод получения списка файлов на сервере
+     */
+    public void getFileListFromCloud() {
+        try {
+            conn.sendFileListCommand();
+        } catch (NetConnection.SendDataException e) {
+            showError(e);
+        }
+    }
 
+    /**
+     * Метод обновления списка файлов на панели сервера
+     * @param filenames
+     */
     public void updateFileListFromCloud(List<String> filenames) {
         updateUI(() ->
         {
@@ -261,7 +322,9 @@ public class Controller
         });
     }
 
-
+    /**
+     * Обновление списка файлов на панели локального репозитория
+     */
     public void updateLocalFileList() {
         updateUI(() ->
         {
@@ -278,10 +341,4 @@ public class Controller
             }
         });
     }
-
-
-    public void exitFromApp(ActionEvent event) {
-        exit(0);
-    }
-
 }
