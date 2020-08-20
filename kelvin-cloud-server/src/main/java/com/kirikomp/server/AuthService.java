@@ -1,6 +1,8 @@
 package com.kirikomp.server;
 
 
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
+
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
@@ -32,16 +34,17 @@ public class AuthService {
 
     /**
      * Метод авторизации пользователя
-     * @param login Login
+     *
+     * @param login    Login
      * @param password Password
      * @return Boolean status
      * @throws SQLException
      */
     public boolean autorize(String login, String password)
-            throws SQLException{
+            throws SQLException {
         PreparedStatement ps = dbConn.prepareStatement(sql);
         ps.setString(1, login);
-       ps.setString(2, passToHash(password));
+        ps.setString(2, passToHash(password));
 
         ResultSet rs = ps.executeQuery();
 
@@ -50,6 +53,7 @@ public class AuthService {
 
     /**
      * Метод преобразования пароля в Hash
+     *
      * @param password Password String
      * @return Password String hash
      */
