@@ -11,21 +11,20 @@ import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import static com.kirikomp.server.Server.STORAGE_DIR;
+import static com.kirikomp.server.ServerRunner.STORAGE_DIR;
 import static java.nio.file.Files.createDirectory;
 import static java.nio.file.Files.exists;
-
 
 public class AuthHandler
         extends ChannelInboundHandlerAdapter {
 
     private boolean autorized;
-    private final AuthService auth;
+    private final AuthService authService;
 
 
-    public AuthHandler() {
+    public AuthHandler(AuthService authService) {
+        this.authService = authService;
         autorized = false;
-        auth = new AuthService();
     }
 
 
@@ -41,7 +40,7 @@ public class AuthHandler
             if (msg instanceof AuthCommand) {
                 AuthCommand com = (AuthCommand) msg;
 
-                autorized = auth.autorize(com.login, com.password);
+                autorized = authService.authorize(com.login, com.password);
                 new File(STORAGE_DIR).mkdirs();
                 if (autorized) {
                     Path dir = Paths.get(STORAGE_DIR, com.login);

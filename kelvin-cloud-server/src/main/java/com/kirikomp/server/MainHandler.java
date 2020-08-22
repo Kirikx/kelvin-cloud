@@ -4,6 +4,7 @@ import com.kirikomp.common.*;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.ReferenceCountUtil;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -12,7 +13,7 @@ import java.util.List;
 
 import static java.util.stream.Collectors.toList;
 
-
+@Component
 public class MainHandler
         extends ChannelInboundHandlerAdapter {
 

@@ -1,6 +1,8 @@
 package com.kirikomp.client;
 
 import com.kirikomp.common.FileSendOptimizer;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -10,11 +12,11 @@ import java.util.concurrent.PriorityBlockingQueue;
 
 import static java.lang.Thread.currentThread;
 
-
+@Component
 public class FileSender
         implements Runnable {
-
-    private final NetConnection conn;
+    @Autowired
+    private NetConnection netConnection;
     private final PriorityBlockingQueue<File> queue;
 
     private static final int MAX_COUNT = 100;
@@ -23,7 +25,6 @@ public class FileSender
      * Конструктор
      */
     public FileSender() {
-        conn = Client.getNetConnection();
         queue = new PriorityBlockingQueue<>(MAX_COUNT, Comparator.comparingLong(File::length));
     }
 
@@ -36,7 +37,7 @@ public class FileSender
                 FileSendOptimizer.sendFile(path,
                         dataPackage -> {
                             try {
-                                conn.sendToServer(dataPackage);
+                                netConnection.sendToServer(dataPackage);
                             } catch (NetConnection.SendDataException e) {
                                 e.printStackTrace();
                             }
@@ -49,6 +50,7 @@ public class FileSender
 
     /**
      * Метод добавления файлов в очередь
+     *
      * @param files File list
      */
     public void addFilesToQueue(List<File> files) {

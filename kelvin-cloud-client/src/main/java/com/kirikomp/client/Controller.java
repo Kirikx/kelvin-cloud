@@ -11,6 +11,9 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 
 import java.io.File;
 import java.io.IOException;
@@ -31,14 +34,17 @@ import static java.lang.Thread.currentThread;
 import static java.util.concurrent.Executors.newFixedThreadPool;
 import static java.util.stream.Collectors.toList;
 
-
+@Component
 public class Controller
         implements Initializable {
-
-    private NetConnection conn;
+    @Autowired
+    private NetConnection netConnection;
     private Window parentWin;
+    @Autowired
     private ServerResponseHandler responseHandler;
+    @Autowired
     private FileSender fileSender;
+
     private ExecutorService exec;
     private Runnable authHandler;
 
@@ -85,13 +91,15 @@ public class Controller
     @FXML
     ListView<String> lstFilesInCloud;
 
+
     /**
      * Метод для аутентификации на сервере
+     *
      * @param event обработчик нажатия конопки аутентификации
      */
     public void auth(ActionEvent event) {
         try {
-            conn.auth(login.getText(), password.getText());
+            netConnection.auth(login.getText(), password.getText());
         } catch (NetConnection.SendDataException e) {
             showError(e.getCause().getMessage());
         }
@@ -107,7 +115,7 @@ public class Controller
         public void run() {
             try {
                 while (!currentThread().isInterrupted()) {
-                    DataPackage response = conn.getResponseFromServer();
+                    DataPackage response = netConnection.getResponseFromServer();
 
                     if (response instanceof AuthResult) {
                         AuthResult ar = (AuthResult) response;
@@ -127,13 +135,12 @@ public class Controller
 
     /**
      * Первичная инициализация формы с панелью авторизации
+     *
      * @param location
      * @param resources
      */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        conn = Client.getNetConnection();
-
         HboxConnect.setVisible(false);
         HboxConnect.setManaged(false);
 
@@ -160,19 +167,15 @@ public class Controller
         HboxFiles.setVisible(true);
         HboxFiles.setManaged(true);
 
-        //Инициализируем обработчик ответов сервера
-        responseHandler = new ServerResponseHandler();
         //Вешаем callback's на обновление списков файлов в результате действий с файлами
         responseHandler.setFileListToServerActionUI(this::updateFileListFromCloud);
         responseHandler.setFileListToLocalActionUI(this::updateLocalFileList);
 
-        //Инициализируем обработчик отправки файлов
-        fileSender = new FileSender();
         exec = newFixedThreadPool(THREAD_MAX_COUNT);
         //Запускаем потоки на отправку и получение
         exec.execute(responseHandler);
         exec.execute(fileSender);
-        
+
         //Скрываем кнопку "Подключится"
         btnConn.managedProperty().bind(btnConn.visibleProperty());
         btnDisconn.managedProperty().bind(btnDisconn.visibleProperty());
@@ -186,11 +189,12 @@ public class Controller
 
     /**
      * Обработчик кнопки "Подключиться"
+     *
      * @param event событие при нажатии кнопки
      */
     public void connectToCloud(ActionEvent event) {
         try {
-            conn.open();
+            netConnection.open();
             exec.execute(responseHandler);
             exec.execute(fileSender);
             setButtonsState(true);
@@ -201,11 +205,12 @@ public class Controller
 
     /**
      * Обработчик кнопки "Отключиться"
+     *
      * @param event событие при нажатии кнопки
      */
     public void disconnectFromCloud(ActionEvent event) {
         try {
-            conn.close();
+            netConnection.close();
             setButtonsState(false);
         } catch (IOException e) {
             showError("Ошибка обрыва связи");
@@ -214,6 +219,7 @@ public class Controller
 
     /**
      * Обработчик кнопки "Выход"
+     *
      * @param event событие при нажатии кнопки
      */
     public void exitFromApp(ActionEvent event) {
@@ -222,6 +228,7 @@ public class Controller
 
     /**
      * Изменение состояния (видимости) кнопок в зависимости от состояния подключения
+     *
      * @param connected активное подключение
      */
     private void setButtonsState(boolean connected) {
@@ -237,6 +244,7 @@ public class Controller
 
     /**
      * Обработчик кнопки "Отправить"
+     *
      * @param event событие при нажатии кнопки
      */
     public void sendFiles(ActionEvent event) {
@@ -253,6 +261,7 @@ public class Controller
 
     /**
      * Обработчик нажатия кнопки "Удалить файлы" (в локальном репозитории)
+     *
      * @param event событие при нажатии кнопки
      */
     public void deleteLocalFiles(ActionEvent event) {
@@ -261,7 +270,7 @@ public class Controller
             List<String> items = model.getSelectedItems();
 
             for (String fn : items) {
-                Path path = Paths.get(ConfigSingleton.getInstance().STORAGE_DIR + "/" + fn);
+                Path path = Paths.get(ConfigSingleton.getInstance().getStorageDir() + "/" + fn);
                 Files.delete(path);
                 updateLocalFileList();
             }
@@ -272,13 +281,14 @@ public class Controller
 
     /**
      * Обработчик нажатия кнопки "Скачать файлы" (из сервера в локальный репозиторий)
+     *
      * @param event событие при нажатии кнопки
      */
     public void downloadFiles(ActionEvent event) {
         try {
             MultipleSelectionModel<String> model = lstFilesInCloud.getSelectionModel();
             List<String> items = model.getSelectedItems();
-            conn.sendDownloadFilesCommand(items);
+            netConnection.sendDownloadFilesCommand(items);
         } catch (NetConnection.SendDataException e) {
             showError(e);
         }
@@ -286,13 +296,14 @@ public class Controller
 
     /**
      * Обработчик нажатия кнопки "Удалить файлы" (на сервере)
+     *
      * @param event событие при нажатии кнопки
      */
     public void deleteFilesInCloud(ActionEvent event) {
         try {
             MultipleSelectionModel<String> model = lstFilesInCloud.getSelectionModel();
             List<String> items = model.getSelectedItems();
-            conn.sendDeleteFilesCommand(items);
+            netConnection.sendDeleteFilesCommand(items);
         } catch (NetConnection.SendDataException e) {
             showError(e);
         }
@@ -303,7 +314,7 @@ public class Controller
      */
     public void getFileListFromCloud() {
         try {
-            conn.sendFileListCommand();
+            netConnection.sendFileListCommand();
         } catch (NetConnection.SendDataException e) {
             showError(e);
         }
@@ -311,6 +322,7 @@ public class Controller
 
     /**
      * Метод обновления списка файлов на панели сервера
+     *
      * @param filenames
      */
     public void updateFileListFromCloud(List<String> filenames) {
@@ -329,7 +341,7 @@ public class Controller
         updateUI(() ->
         {
             try {
-                List<String> fnames = Files.list(Paths.get(ConfigSingleton.getInstance().STORAGE_DIR))
+                List<String> fnames = Files.list(Paths.get(ConfigSingleton.getInstance().getStorageDir()))
                         .map(x -> x.getFileName().toString())
                         .collect(toList());
 

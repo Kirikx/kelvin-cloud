@@ -4,6 +4,7 @@ package com.kirikomp.client;
 import com.kirikomp.common.*;
 import io.netty.handler.codec.serialization.ObjectDecoderInputStream;
 import io.netty.handler.codec.serialization.ObjectEncoderOutputStream;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,7 +28,7 @@ public class NetConnection {
      */
     public NetConnection() {
         sock = new Socket();
-        addr = new InetSocketAddress(ConfigSingleton.getInstance().HOST, ConfigSingleton.getInstance().PORT);
+        addr = new InetSocketAddress(ConfigSingleton.getInstance().getHost(), ConfigSingleton.getInstance().getPort());
     }
 
     /**
@@ -43,7 +44,7 @@ public class NetConnection {
         OutputStream os = sock.getOutputStream();
         InputStream is = sock.getInputStream();
         out = new ObjectEncoderOutputStream(os);
-        in = new ObjectDecoderInputStream(is, ConfigSingleton.getInstance().MAX_OBJ_SIZE);
+        in = new ObjectDecoderInputStream(is, ConfigSingleton.getInstance().getMaxObjSize());
     }
 
     /**
