@@ -2,6 +2,8 @@ package com.kirikomp.client;
 
 
 import com.kirikomp.common.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -12,11 +14,11 @@ import java.util.function.Consumer;
 
 import static java.lang.Thread.currentThread;
 
-
+@Component
 public class ServerResponseHandler
         implements Runnable {
-
-    private final NetConnection conn;
+    @Autowired
+    private NetConnection netConnection;
     private Consumer<List<String>> callbackFileList;
     private Runnable callbackFileData;
     private FileChunkSaver saver;
@@ -25,12 +27,12 @@ public class ServerResponseHandler
      * Конструктор хендлера сервера
      */
     public ServerResponseHandler() {
-        conn = Client.getNetConnection();
-        saver = new FileChunkSaver(Paths.get(ConfigSingleton.getInstance().STORAGE_DIR));
+        saver = new FileChunkSaver(Paths.get(ConfigSingleton.getInstance().getStorageDir()));
     }
 
     /**
      * Callback для обновления списка файлов на сервере
+     *
      * @param action Consumer<List<String>>
      */
     public void setFileListToServerActionUI(Consumer<List<String>> action) {
@@ -39,6 +41,7 @@ public class ServerResponseHandler
 
     /**
      * Callback для обновления списка файлов в локальном репозитории
+     *
      * @param action Runnable
      */
     public void setFileListToLocalActionUI(Runnable action) {
@@ -50,7 +53,7 @@ public class ServerResponseHandler
     public void run() {
         try {
             while (!currentThread().isInterrupted()) {
-                DataPackage response = conn.getResponseFromServer();
+                DataPackage response = netConnection.getResponseFromServer();
                 parsingResponse(response);
             }
         } catch (NetConnection.ServerResponseException | IOException e) {
@@ -71,7 +74,7 @@ public class ServerResponseHandler
 
         if (response instanceof FileDataPackage) {
             FileDataPackage pack = (FileDataPackage) response;
-            Path path = Paths.get(ConfigSingleton.getInstance().STORAGE_DIR + "/" + pack.getFilename());
+            Path path = Paths.get(ConfigSingleton.getInstance().getStorageDir() + "/" + pack.getFilename());
             Files.write(path, pack.getData());
             callbackFileData.run();
             return;
